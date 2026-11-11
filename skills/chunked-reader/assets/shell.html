@@ -1,0 +1,269 @@
+<title>__TITLE__</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;900&display=swap">
+<style>
+/* Layout: one reading column (about 36em). Home = title + progress dots + lesson index by part; lesson = one short card, prev/next at the foot. */
+:root{
+  --bg:#f1f4f3; --surface:#fbfcfc; --sunk:#e4eae8; --ink:#14201f; --muted:#586866; --rule:#cdd7d5;
+  --accent:#1c7673; --accent-soft:#d9ebe9; --c1:#9a6a12; --c1-soft:#f3e8d2; --warn:#a8432a;
+  --f-display:"Noto Serif SC","Songti SC","STSong",serif;
+  --f-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --measure:36em;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0d1312; --surface:#141c1b; --sunk:#1c2625; --ink:#e3ecea; --muted:#8fa19e; --rule:#27322f;
+  --accent:#62c6c1; --accent-soft:#17302f; --c1:#e2ab4f; --c1-soft:#2e2717; --warn:#e58a6f; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0d1312; --surface:#141c1b; --sunk:#1c2625; --ink:#e3ecea; --muted:#8fa19e; --rule:#27322f;
+  --accent:#62c6c1; --accent-soft:#17302f; --c1:#e2ab4f; --c1-soft:#2e2717; --warn:#e58a6f; color-scheme:dark }
+/*__THEME__*/
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.8;padding-block:0 48px}
+.gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+a{color:var(--accent)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.wrap{max-width:var(--measure);margin:0 auto}
+.mono{font-family:var(--f-mono);font-size:.78em}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--rule);padding-block:6px 8px}
+.bar .row{display:flex;align-items:center;gap:10px;min-height:36px}
+.bar .home{border:0;background:none;padding:4px 0;cursor:pointer;font-family:var(--f-display);font-weight:900;font-size:17px;white-space:nowrap}
+.bar .where{flex:1;min-width:0;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .count{font-family:var(--f-mono);font-size:12px;color:var(--muted);white-space:nowrap}
+.meter{display:block;width:100%;height:3px;background:var(--rule);overflow:hidden;margin-top:4px}
+.meter i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+
+.hero{padding:28px 0 8px;display:flex;flex-direction:column;gap:12px}
+.hero h1{font-family:var(--f-display);font-weight:900;font-size:clamp(32px,8.5vw,48px);line-height:1.15;margin:0;text-wrap:balance}
+.hero .sub{color:var(--muted);font-size:14px;line-height:1.65;margin:0}
+.dots{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.dots a{width:11px;height:11px;border-radius:50%;border:1.5px solid var(--rule);display:block}
+.dots a.on{background:var(--accent);border-color:var(--accent)}
+.dots .gap{width:8px}
+.thesis{font-family:var(--f-display);font-weight:600;font-size:19px;line-height:1.6;margin:14px 0 6px;padding:14px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.thesis small{display:block;font-family:var(--f-body);font-weight:400;font-size:13px;color:var(--muted);margin-top:4px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 8px}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--bg);border-radius:999px;padding:9px 18px;font-size:15px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.cont{border-radius:14px;flex-direction:column;align-items:flex-start;gap:0;line-height:1.45;padding:9px 16px;max-width:100%}
+.btn.cont small{font-size:12.5px;opacity:.9}
+.howto{font-size:13.5px;color:var(--muted);line-height:1.7;margin:10px 0 0}
+.part{margin-top:34px}
+.part h2{font-family:var(--f-display);font-weight:900;font-size:21px;margin:0;display:flex;gap:10px;align-items:baseline;text-wrap:balance}
+.part h2 .tag{font-family:var(--f-mono);font-weight:500;font-size:13px;color:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:0 6px}
+.part .chap{font-size:13px;color:var(--muted);margin:4px 0 8px}
+.ls{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.ls li{border-bottom:1px solid var(--rule)}
+.ls a{display:grid;grid-template-columns:3.2em 1fr auto;gap:10px;align-items:baseline;padding:11px 2px;text-decoration:none;color:var(--ink)}
+.ls a:hover .t{color:var(--accent)}
+.ls .n{font-family:var(--f-mono);font-size:12.5px;color:var(--muted)}
+.ls .t{min-width:0;line-height:1.5}
+.ls .t small{display:block;color:var(--muted);font-size:12.5px;line-height:1.5;margin-top:2px}
+.ls .ck{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--rule);align-self:center}
+.ls .done .ck{background:var(--accent);border-color:var(--accent);box-shadow:inset 0 0 0 3px var(--bg)}
+.ls .done .t{color:var(--muted)}
+
+.lesson{padding-top:22px}
+.eyebrow{display:flex;flex-wrap:wrap;gap:4px 12px;color:var(--muted);font-family:var(--f-mono);font-size:12px}
+.eyebrow b{color:var(--accent);font-weight:500}
+.lesson h1{font-family:var(--f-display);font-weight:900;font-size:clamp(25px,6.4vw,33px);line-height:1.3;margin:8px 0 14px;text-wrap:balance}
+.gist{font-family:var(--f-display);font-weight:600;font-size:19px;line-height:1.65;margin:0 0 20px;padding-left:14px;border-left:3px solid var(--accent)}
+.body p{margin:0 0 1em}
+.body h3,.lesson h2{font-family:var(--f-display);font-weight:900;font-size:18px;margin:28px 0 8px}
+.body ul,.body ol,.facts ul{padding-left:1.25em;margin:0 0 1em}
+.body li,.facts li{margin:.25em 0}
+.body code,.facts code,.box code,.quiz code{font-family:var(--f-mono);font-size:.86em;background:var(--sunk);padding:1px 5px;border-radius:4px}
+.body pre{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:12px 14px;overflow-x:auto;font-size:13.5px;line-height:1.6;margin:0 0 1em}
+.body pre code{background:none;padding:0;font-size:inherit;white-space:pre}
+.body table,.facts table{border-collapse:collapse;font-size:14.5px;margin:0;min-width:100%}
+.tbl{overflow-x:auto;margin:0 0 1em}
+.body th,.body td,.facts th,.facts td{border-bottom:1px solid var(--rule);padding:6px 8px;text-align:left;vertical-align:top}
+.bc{font-family:var(--f-mono);font-size:.74em;color:var(--c1)}
+.facts{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px 16px 4px;margin:22px 0;font-size:15.5px;line-height:1.7}
+.facts h2{margin:0 0 6px;font-size:16px}
+figure.dia{margin:24px 0;padding:0}
+figure.dia .svgbox{overflow-x:auto;background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:10px}
+figure.dia svg{display:block;width:100%;height:auto;min-width:540px;max-width:640px;margin:0 auto}
+figure.dia figcaption{font-size:13.5px;color:var(--muted);line-height:1.6;margin-top:8px}
+figure.dia figcaption b{color:var(--ink)}
+.dia .ink{stroke:var(--ink);fill:none} .dia .mut{stroke:var(--muted);fill:none} .dia .c1{stroke:var(--c1);fill:none} .dia .c2{stroke:var(--accent);fill:none} .dia .wr{stroke:var(--warn);fill:none}
+.dia .inkf{fill:var(--ink)} .dia .mutf{fill:var(--muted)} .dia .c1f{fill:var(--c1)} .dia .c2f{fill:var(--accent)} .dia .wrf{fill:var(--warn)}
+.dia .soft{fill:var(--sunk);stroke:var(--rule)} .dia .bgf{fill:var(--surface)}
+.dia text{font-family:var(--f-body);font-size:13px;fill:var(--ink);stroke:none}
+.dia text.m{fill:var(--muted);font-size:12px} .dia text.k1{fill:var(--c1)} .dia text.k2{fill:var(--accent)} .dia text.w{fill:var(--warn)}
+.orig{margin:24px 0}
+.orig h2{font-size:17px;margin:0 0 4px}
+.orig .note{font-size:12.5px;color:var(--muted);margin:0 0 10px}
+.orig figure{margin:0 0 18px;padding:0}
+.orig button.zoom{display:block;width:100%;padding:8px;border:1px solid var(--rule);border-radius:10px;background:#fff;cursor:zoom-in}
+.orig img{display:block;width:100%;height:auto;margin:0 auto}
+.orig figcaption{font-size:13.5px;color:var(--ink);margin-top:6px;line-height:1.6}
+.orig figcaption small{display:block;font-family:var(--f-mono);font-size:11.5px;color:var(--muted);word-break:break-word}
+.links{font-size:14px;margin:18px 0;padding:0;list-style:none;border-top:1px solid var(--rule)}
+.links li{border-bottom:1px solid var(--rule);padding:8px 0}
+.links a{text-decoration:none}
+.links a::after{content:" ↗"}
+.quiz{margin:26px 0}
+.quiz details{border-top:1px solid var(--rule);padding:10px 0}
+.quiz details:last-of-type{border-bottom:1px solid var(--rule)}
+.quiz summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:1.6em 1fr;gap:6px;line-height:1.65}
+.quiz summary::-webkit-details-marker{display:none}
+.quiz summary::before{content:attr(data-q);font-family:var(--f-display);font-weight:900;color:var(--accent)}
+.quiz .ans{padding-left:calc(1.6em + 6px);font-size:15.5px;margin-top:6px}
+.quiz .ans p{margin:0 0 .6em}
+.quiz .hint{font-size:12.5px;color:var(--muted);margin:4px 0 0}
+.box{border-radius:10px;padding:14px 16px 6px;margin:22px 0;font-size:15.5px;line-height:1.75}
+.box h2{margin:0 0 6px;font-size:16px}
+.box.ext{background:var(--c1-soft)} .box.ext h2{color:var(--c1)}
+.box.apply{background:var(--accent-soft)} .box.apply h2{color:var(--accent)}
+.box p{margin:0 0 .8em} .box ul{padding-left:1.2em;margin:0 0 .8em}
+.foot{display:flex;flex-direction:column;gap:12px;margin-top:30px}
+.markrow{display:flex;justify-content:center}
+.nav2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.nav2 a{display:block;border:1px solid var(--rule);border-radius:10px;padding:10px 12px;text-decoration:none;color:var(--ink);min-width:0;background:var(--surface)}
+.nav2 a small{display:block;font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+.nav2 a span{font-size:14px;line-height:1.45;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.nav2 .next{text-align:right} .nav2 .ph{visibility:hidden}
+.gl h1{font-family:var(--f-display);font-weight:900;font-size:30px;margin:22px 0 10px}
+.gl input{width:100%;font:inherit;font-size:16px;padding:10px 14px;border:1px solid var(--rule);border-radius:10px;background:var(--surface);color:var(--ink)}
+.gl dt{font-weight:700;margin-top:14px}
+.gl dt small{font-family:var(--f-mono);font-weight:400;color:var(--muted);font-size:12px;margin-left:6px}
+.gl dd{margin:2px 0 0;font-size:15.5px;line-height:1.7}
+.gl .empty{color:var(--muted);margin-top:16px}
+.colophon{margin-top:40px;font-size:12.5px;color:var(--muted);line-height:1.7;border-top:1px solid var(--rule);padding-top:14px}
+.lightbox{position:fixed;inset:0;z-index:50;background:rgba(8,12,11,.94);display:flex;flex-direction:column;
+  padding:calc(env(safe-area-inset-top,0px) + 8px) max(8px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 8px) max(8px,env(safe-area-inset-left,0px))}
+.lightbox .lbbar{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#e3ecea;font-size:13px;padding:4px 4px 8px}
+.lightbox .lbbar button{background:none;border:1px solid #e3ecea;color:#e3ecea;border-radius:999px;padding:4px 14px;font-size:14px;cursor:pointer}
+.lightbox .lbimg{flex:1;overflow:auto;background:#fff;border-radius:8px}
+.lightbox .lbimg img{display:block;width:200%;max-width:none;height:auto}
+.lightbox .lbimg.fit{display:flex;align-items:center;justify-content:center}
+.lightbox .lbimg.fit img{width:auto;max-width:100%;max-height:100%}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:420px){body{font-size:16.5px}}
+</style>
+
+<header class="bar gut"><div class="wrap row">
+  <button class="home" id="homeBtn" type="button"></button>
+  <div class="where" id="where"></div>
+  <div class="count" id="count"></div>
+</div><div class="wrap"><div class="meter"><i id="meterFill"></i></div></div></header>
+<div class="gut"><main class="wrap" id="app"></main></div>
+<div class="lightbox" id="lb" hidden><div class="lbbar"><span id="lbcap"></span><span><button type="button" id="lbfit">放大</button> <button type="button" id="lbclose">关闭</button></span></div><div class="lbimg fit" id="lbimg"></div></div>
+
+<script>window.BOOK=/*__BOOK__*/null;</script>
+<script>
+(function(){
+  const D=window.BOOK, T=Object.assign({
+    cont:'继续读', start:'从第一节开始', firstUnread:'第一节没读的', random:'随机一节', glossary:'术语表',
+    minutes:'分钟', facts:'原文里怎么说', quiz:'小测', quizHint:'点问题看答案。', ext:'延伸', apply:'和你的项目',
+    orig:'原文配图', origNote:'开放许可的原图，点图放大。出处和许可证见图下。', links:'原文里值得看的图（受版权保护，点开看原页）',
+    markUndo:'已读 · 点击取消', markNext:'读完了，下一节', markLast:'读完了', backToc:'回到目录',
+    glPh:'搜一个词', glEmpty:'没有匹配的词。', read:'已读'
+  }, D.labels||{});
+  const KEY=(D.storageKey||'chunked-reader')+'-read', LAST=(D.storageKey||'chunked-reader')+'-last';
+  const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+  const L=[]; D.parts.forEach(p=>p.lessons.forEach(l=>{l.part=p;L.push(l)}));
+  const byId=Object.fromEntries(L.map((l,i)=>[l.id,{l,i}]));
+  let read=new Set(); try{read=new Set(JSON.parse(store.get(KEY)||'[]'))}catch(e){}
+  const save=()=>store.set(KEY,JSON.stringify([...read]));
+  const app=document.getElementById('app');
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  document.getElementById('homeBtn').textContent=D.brand||D.title;
+
+  function updateBar(cur){
+    const n=[...read].filter(id=>byId[id]).length,t=L.length;
+    document.getElementById('count').textContent=n+' / '+t;
+    document.getElementById('meterFill').style.width=(100*n/t)+'%';
+    document.getElementById('where').textContent=cur||'';
+  }
+  function home(){
+    const last=store.get(LAST), lastL=last&&byId[last]?byId[last].l:null;
+    const firstUnread=L.find(l=>!read.has(l.id))||L[0];
+    let h='<section class="hero"><h1>'+esc(D.title)+'</h1>';
+    if(D.sub) h+='<p class="sub">'+D.sub+'</p>';
+    h+='<div class="dots" aria-label="'+T.read+'">';
+    D.parts.forEach((p,pi)=>{ if(pi) h+='<span class="gap"></span>'; p.lessons.forEach(l=>{h+='<a href="#'+l.id+'" class="'+(read.has(l.id)?'on':'')+'" title="'+esc(l.id.toUpperCase()+' '+l.title)+'" aria-label="'+esc(l.id.toUpperCase()+' '+l.title)+'"></a>'}); });
+    h+='</div></section>';
+    if(D.thesis) h+='<div class="thesis">'+D.thesis+(D.thesisNote?'<small>'+D.thesisNote+'</small>':'')+'</div>';
+    h+='<div class="actions">';
+    if(lastL) h+='<a class="btn cont" href="#'+lastL.id+'"><span>'+T.cont+'</span><small>'+lastL.id.toUpperCase()+' '+esc(lastL.title)+'</small></a>';
+    else h+='<a class="btn" href="#'+firstUnread.id+'">'+T.start+'</a>';
+    if(lastL&&firstUnread.id!==lastL.id) h+='<a class="btn ghost" href="#'+firstUnread.id+'">'+T.firstUnread+'</a>';
+    h+='<button class="btn ghost" id="rnd" type="button">'+T.random+'</button>';
+    if(D.glossary&&D.glossary.length) h+='<a class="btn ghost" href="#glossary">'+T.glossary+'</a>';
+    h+='</div>';
+    if(D.howto) h+='<p class="howto">'+D.howto+'</p>';
+    D.parts.forEach(p=>{
+      const done=p.lessons.filter(l=>read.has(l.id)).length;
+      h+='<section class="part"><h2><span class="tag">'+esc(p.key)+'</span>'+esc(p.title)+'</h2><div class="chap">'+esc(p.chapters||'')+' · '+done+'/'+p.lessons.length+' '+T.read+'</div><ul class="ls">';
+      p.lessons.forEach(l=>{const r=read.has(l.id);
+        h+='<li class="'+(r?'done':'')+'"><a href="#'+l.id+'"><span class="n">'+l.id.toUpperCase()+'</span><span class="t">'+esc(l.title)+'<small>'+esc(l.gistShort||'')+'</small></span><span class="ck"></span></a></li>'});
+      h+='</ul></section>';
+    });
+    if(D.colophon) h+='<div class="colophon">'+D.colophon+'</div>';
+    app.innerHTML=h;
+    document.getElementById('rnd').onclick=()=>{const pool=L.filter(l=>!read.has(l.id)),src=pool.length?pool:L;location.hash=src[Math.floor(Math.random()*src.length)].id};
+    updateBar(''); document.title=D.title;
+  }
+  function lesson(id){
+    const {l,i}=byId[id]; store.set(LAST,id);
+    const prev=L[i-1], next=L[i+1];
+    let h='<article class="lesson"><div class="eyebrow"><b>'+l.id.toUpperCase()+'</b><span>'+esc(l.source||l.part.title)+'</span>'+(l.where?'<span>'+esc(l.where)+'</span>':'')+'<span>'+(l.minutes||4)+' '+T.minutes+'</span></div>';
+    h+='<h1>'+esc(l.title)+'</h1>';
+    if(l.gist) h+='<p class="gist">'+l.gist+'</p>';
+    h+='<div class="body">'+(l.body||'')+'</div>';
+    (l.figs||[]).forEach(f=>{h+='<figure class="dia"><div class="svgbox">'+f.svg+'</div><figcaption>'+(f.cap||'')+'</figcaption></figure>'});
+    if(l.orig&&l.orig.length){
+      h+='<section class="orig"><h2>'+T.orig+'</h2><p class="note">'+T.origNote+'</p>';
+      l.orig.forEach((o,k)=>{h+='<figure><button class="zoom" type="button" data-k="'+k+'"><img loading="lazy" src="'+esc(o.src)+'" width="'+o.w+'" height="'+o.h+'" alt="'+esc(o.caption||('Fig. '+o.n))+'"></button><figcaption>'+(o.n?'<b>Fig. '+esc(o.n)+'</b>　':'')+esc(o.caption||'')+'<small>'+esc(o.credit||'')+(o.page?' · <a href="'+esc(o.page)+'" target="_blank" rel="noopener">source</a>':'')+'</small></figcaption></figure>'});
+      h+='</section>';
+    }
+    if(l.links&&l.links.length){
+      h+='<h2>'+T.links+'</h2><ul class="links">'+l.links.map(k=>'<li><a href="'+esc(k.url)+'" target="_blank" rel="noopener">'+esc(k.label)+'</a></li>').join('')+'</ul>';
+    }
+    if(l.facts) h+='<section class="facts"><h2>'+T.facts+'</h2>'+l.facts+'</section>';
+    if(l.quiz&&l.quiz.length){
+      h+='<section class="quiz"><h2>'+T.quiz+'</h2>';
+      l.quiz.forEach(q=>{h+='<details><summary data-q="问">'+q.q+'</summary><div class="ans">'+q.a+'</div></details>'});
+      h+='<p class="hint">'+T.quizHint+'</p></section>';
+    }
+    if(l.ext) h+='<section class="box ext"><h2>'+T.ext+'</h2>'+l.ext+'</section>';
+    if(l.apply) h+='<section class="box apply"><h2>'+T.apply+'</h2>'+l.apply+'</section>';
+    h+='<div class="foot"><div class="markrow"><button class="btn'+(read.has(id)?' ghost':'')+'" id="mark" type="button">'+(read.has(id)?T.markUndo:(next?T.markNext:T.markLast))+'</button></div>';
+    h+='<nav class="nav2">'+(prev?'<a href="#'+prev.id+'"><small>← '+prev.id.toUpperCase()+'</small><span>'+esc(prev.title)+'</span></a>':'<a class="ph" aria-hidden="true"></a>');
+    h+=(next?'<a class="next" href="#'+next.id+'"><small>'+next.id.toUpperCase()+' →</small><span>'+esc(next.title)+'</span></a>':'<a class="next" href="#"><small>→</small><span>'+T.backToc+'</span></a>')+'</nav></div></article>';
+    app.innerHTML=h;
+    app.querySelectorAll('.body table,.facts table').forEach(t=>{const w=document.createElement('div');w.className='tbl';t.parentNode.insertBefore(w,t);w.appendChild(t)});
+    app.querySelectorAll('.orig button.zoom').forEach(b=>{b.onclick=()=>openLB(l.orig[+b.dataset.k])});
+    document.getElementById('mark').onclick=()=>{
+      if(read.has(id)){read.delete(id);save();lesson(id);return}
+      read.add(id);save(); location.hash=next?next.id:'';
+    };
+    updateBar(l.id.toUpperCase()+' '+l.title); document.title=l.id.toUpperCase()+' '+l.title;
+  }
+  const lb=document.getElementById('lb'),lbimg=document.getElementById('lbimg'),lbfit=document.getElementById('lbfit');
+  function closeLB(){lb.hidden=true;lbimg.innerHTML=''}
+  function openLB(o){lbimg.innerHTML='<img src="'+esc(o.src)+'" alt="">';lbimg.className='lbimg fit';document.getElementById('lbcap').textContent=(o.n?'Fig. '+o.n+' · ':'')+(o.credit||'');lbfit.textContent='放大';lb.hidden=false}
+  lbfit.onclick=()=>{const f=lbimg.classList.toggle('fit');lbfit.textContent=f?'放大':'适应'};
+  document.getElementById('lbclose').onclick=closeLB;
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!lb.hidden)closeLB()});
+  function glossary(){
+    app.innerHTML='<section class="gl"><h1>'+T.glossary+'</h1><input id="q" type="search" placeholder="'+esc(T.glPh)+'" autocomplete="off"><dl id="gl"></dl><p class="empty" id="glEmpty" hidden>'+T.glEmpty+'</p></section>';
+    const dl=document.getElementById('gl'),q=document.getElementById('q'),empty=document.getElementById('glEmpty');
+    function draw(){const s=q.value.trim().toLowerCase();
+      const items=D.glossary.filter(g=>!s||(g.term+' '+(g.en||'')+' '+g.def).toLowerCase().includes(s));
+      dl.innerHTML=items.map(g=>'<dt>'+esc(g.term)+(g.en&&g.en!==g.term?'<small>'+esc(g.en)+'</small>':'')+'</dt><dd>'+g.def+(g.ref&&byId[g.ref]?' <a href="#'+g.ref+'" class="mono">'+g.ref.toUpperCase()+'</a>':'')+'</dd>').join('');
+      empty.hidden=items.length>0}
+    q.oninput=draw;draw();updateBar(T.glossary);document.title=T.glossary;
+  }
+  function route(){const id=(location.hash||'').slice(1).toLowerCase(); if(!lb.hidden)closeLB();
+    if(id==='glossary'&&D.glossary)glossary(); else if(byId[id])lesson(id); else home(); window.scrollTo(0,0)}
+  document.getElementById('homeBtn').onclick=()=>{if(location.hash)location.hash='';else route()};
+  window.addEventListener('hashchange',route); route();
+})();
+</script>
